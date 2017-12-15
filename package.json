@@ -1,0 +1,29 @@
+{
+  "name": "simple-dts-bundler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YuushiOnozawa/simple-dts-bundler.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YuushiOnozawa/simple-dts-bundler/issues"
+  },
+  "homepage": "https://github.com/YuushiOnozawa/simple-dts-bundler#readme",
+  "devDependencies": {
+    "ts-loader": "^3.2.0",
+    "typescript": "^2.6.2",
+    "webpack": "^3.10.0"
+  },
+  "dependencies": {
+    "@types/pixi.js": "^4.6.1",
+    "@types/webpack": "^3.8.1"
+  }
+}
