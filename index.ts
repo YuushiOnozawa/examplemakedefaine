@@ -1,18 +1,21 @@
 import {Compiler} from "webpack";
 
+export interface IPluginOption {
+  wrapModule: boolean;
+  name: string;
+  outDir: string;
+  exRefrences?: string[] | undefined;
+}
 
-class SimpleDtsBundlePlugin {
+export default class SimpleDtsBundlePlugin {
   wrapModule: boolean;
   outDir: string;
   moduleName: string;
   exRefrences: string[] | undefined;
+  importStats: string[] = [];
+  importStatekeys: {[index: string]: boolean} = {};
 
-  constructor(options: {
-    wrapModule: boolean;
-    name: string;
-    outDir: string;
-    exRefrences?: string[] | undefined;
-  }) {
+  constructor(options: IPluginOption ) {
     this.moduleName = options.name;
     this.wrapModule = options.wrapModule ? options.wrapModule : true;
     this.outDir = options.outDir ? options.outDir : './dist/';
@@ -22,7 +25,7 @@ class SimpleDtsBundlePlugin {
   apply(compiler: Compiler): void {
     compiler.plugin('emit', (compilation: any, callback: any) => {
       let declarationFiles: any = {};
-      for (var filename in compilation.assets) {
+      for (let filename in compilation.assets) {
         if (filename.indexOf('.d.ts') !== -1) {
           declarationFiles[filename] = compilation.assets[filename];
           delete compilation.assets[filename];
@@ -53,23 +56,42 @@ class SimpleDtsBundlePlugin {
       let i = lines.length;
 
       while (i--) {
-        const line = lines[i];
-        let excludeLine = this.checkLines(line);
-
-        if (!excludeLine && this.exRefrences && line.indexOf("<reference") !== -1) {
-          excludeLine = this.exRefrences.some(reference => line.indexOf(reference) !== -1);
-        }
-
-        if (excludeLine) {
-          lines.splice(i, 1);
-        }
+        lines[i] = this.makeLines(lines[i]);
       }
       declarations += lines.join("\n") + "\n\n";
     }
 
     return this.wrapModule ?
-      "declare module " + this.moduleName + "\n{\n" + declarations + "}" :
+      this.importStats.join('\n') + "\n\n" + "declare module " + this.moduleName + "\n{\n" + declarations + "}" :
       declarations;
+  }
+
+  private makeLines(line: string): string | null {
+    line = this.removeExportClass(line);
+    let excludeLine = this.checkLines(line);
+
+    if (!excludeLine && this.exRefrences && line.indexOf("<reference") !== -1) {
+      excludeLine = this.exRefrences.some(reference => line.indexOf(reference) !== -1);
+    }
+
+    if (excludeLine) {
+      return '';
+    }
+
+    return line;
+  }
+
+  private removeExportClass(line: string): string  {
+    if (line.indexOf('export') !== -1 &&
+      line.indexOf(' from ') === -1 &&
+      (line.indexOf('class') !== -1
+        || line.indexOf('const') !== -1
+        || line.indexOf('interface') !== -1)
+    ) {
+      return line.replace('export', '');
+    }
+
+    return line;
   }
 
   private checkLines(line: string): boolean {
@@ -77,9 +99,9 @@ class SimpleDtsBundlePlugin {
     let checkResult: boolean = false;
     checkArrays.forEach((item) => {
       if (!checkResult) {
-        checkResult = item(line);
+        checkResult = item.bind(this, line)();
       }
-    });
+    }, this);
     return checkResult;
   }
 
@@ -88,12 +110,17 @@ class SimpleDtsBundlePlugin {
   }
 
   private checkExport(line: string): boolean {
-    return line.indexOf('export') !== -1 && line.indexOf('class') === -1;
+    return line.indexOf('export') !== -1;
   }
 
   private checkImport(line: string): boolean {
-    return line.indexOf('import') !== -1
+    // とりあえず完全に同一行だけはじく
+    if(line.indexOf('import') !== -1) {
+      if(!this.importStatekeys[line]) {
+        this.importStatekeys[line] = true;
+        this.importStats.push(line);
+      }
+    }
+    return line.indexOf('import') !== -1;
   }
 }
-
-export = SimpleDtsBundlePlugin;
