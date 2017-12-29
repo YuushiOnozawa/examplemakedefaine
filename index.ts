@@ -64,6 +64,7 @@ class SimpleDtsBundlePlugin {
 
   private makeLines(line: string): string | null {
     line = this.removeExportClass(line);
+    line = this.checkDeclare(line);
     let excludeLine = this.checkLines(line);
 
     if (!excludeLine && this.exRefrences && line.indexOf("<reference") !== -1) {
@@ -77,21 +78,12 @@ class SimpleDtsBundlePlugin {
     return line;
   }
 
-  private removeExportClass(line: string): string {
-    if (line.indexOf('export') !== -1 &&
-      line.indexOf(' from ') === -1 &&
-      (line.indexOf('class') !== -1
-        || line.indexOf('const') !== -1
-        || line.indexOf('interface') !== -1)
-    ) {
-      return line.replace('export', '');
-    }
-
-    return line;
-  }
-
   private checkLines(line: string): boolean {
-    const checkArrays: Array<(line: string) => boolean> = [this.checkEmptyLine, this.checkExport, this.checkImport];
+    const checkArrays: Array<(line: string) => boolean> = [
+      this.checkEmptyLine,
+      this.checkExport,
+      this.checkImport,
+    ];
     let checkResult: boolean = false;
     checkArrays.forEach((item) => {
       if (!checkResult) {
@@ -99,6 +91,27 @@ class SimpleDtsBundlePlugin {
       }
     }, this);
     return checkResult;
+  }
+
+  private removeExportClass(line: string): string {
+    if (line.indexOf('export') !== -1 &&
+      line.indexOf(' from ') === -1 &&
+      (line.indexOf('class') !== -1
+        || line.indexOf('const') !== -1
+        || line.indexOf('interface') !== -1)
+    ) {
+      return line.replace('export ', '');
+    }
+
+    return line;
+  }
+
+  private checkDeclare(line: string): string {
+    if(this.wrapModule) {
+      return line.replace('declare ', '')
+    }
+
+    return line;
   }
 
   private checkEmptyLine(line: string): boolean {

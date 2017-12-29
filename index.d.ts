@@ -14,8 +14,9 @@ declare class SimpleDtsBundlePlugin {
     apply(compiler: Compiler): void;
     private make(declarationFiles);
     private makeLines(line);
-    private removeExportClass(line);
     private checkLines(line);
+    private removeExportClass(line);
+    private checkDeclare(line);
     private checkEmptyLine(line);
     private checkExport(line);
     private checkImport(line);

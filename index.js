@@ -50,6 +50,7 @@ var SimpleDtsBundlePlugin = /** @class */ (function () {
     };
     SimpleDtsBundlePlugin.prototype.makeLines = function (line) {
         line = this.removeExportClass(line);
+        line = this.checkDeclare(line);
         var excludeLine = this.checkLines(line);
         if (!excludeLine && this.exRefrences && line.indexOf("<reference") !== -1) {
             excludeLine = this.exRefrences.some(function (reference) { return line.indexOf(reference) !== -1; });
@@ -59,19 +60,13 @@ var SimpleDtsBundlePlugin = /** @class */ (function () {
         }
         return line;
     };
-    SimpleDtsBundlePlugin.prototype.removeExportClass = function (line) {
-        if (line.indexOf('export') !== -1 &&
-            line.indexOf(' from ') === -1 &&
-            (line.indexOf('class') !== -1
-                || line.indexOf('const') !== -1
-                || line.indexOf('interface') !== -1)) {
-            return line.replace('export', '');
-        }
-        return line;
-    };
     SimpleDtsBundlePlugin.prototype.checkLines = function (line) {
         var _this = this;
-        var checkArrays = [this.checkEmptyLine, this.checkExport, this.checkImport];
+        var checkArrays = [
+            this.checkEmptyLine,
+            this.checkExport,
+            this.checkImport,
+        ];
         var checkResult = false;
         checkArrays.forEach(function (item) {
             if (!checkResult) {
@@ -79,6 +74,22 @@ var SimpleDtsBundlePlugin = /** @class */ (function () {
             }
         }, this);
         return checkResult;
+    };
+    SimpleDtsBundlePlugin.prototype.removeExportClass = function (line) {
+        if (line.indexOf('export') !== -1 &&
+            line.indexOf(' from ') === -1 &&
+            (line.indexOf('class') !== -1
+                || line.indexOf('const') !== -1
+                || line.indexOf('interface') !== -1)) {
+            return line.replace('export ', '');
+        }
+        return line;
+    };
+    SimpleDtsBundlePlugin.prototype.checkDeclare = function (line) {
+        if (this.wrapModule) {
+            return line.replace('declare ', '');
+        }
+        return line;
     };
     SimpleDtsBundlePlugin.prototype.checkEmptyLine = function (line) {
         return line === '';
