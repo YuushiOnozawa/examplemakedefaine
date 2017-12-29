@@ -1,21 +1,15 @@
 import {Compiler} from "webpack";
+import {IPluginOption} from "./interfaces";
 
-export interface IPluginOption {
-  wrapModule: boolean;
-  name: string;
-  out: string;
-  exRefrences?: string[] | undefined;
-}
-
-export default class SimpleDtsBundlePlugin {
+class SimpleDtsBundlePlugin {
   wrapModule: boolean;
   out: string;
   moduleName: string;
   exRefrences: string[] | undefined;
   importStats: string[] = [];
-  importStatekeys: {[index: string]: boolean} = {};
+  importStatekeys: { [index: string]: boolean } = {};
 
-  constructor(options: IPluginOption ) {
+  constructor(options: IPluginOption) {
     this.moduleName = options.name;
     this.wrapModule = options.wrapModule ? options.wrapModule : true;
     this.out = options.out ? options.out : './dist/index.d.ts';
@@ -55,7 +49,7 @@ export default class SimpleDtsBundlePlugin {
       const lines = data.split("\n");
       let i = lines.length;
 
-      if(this.wrapModule) {
+      if (this.wrapModule) {
         while (i--) {
           lines[i] = this.makeLines(lines[i]);
         }
@@ -83,7 +77,7 @@ export default class SimpleDtsBundlePlugin {
     return line;
   }
 
-  private removeExportClass(line: string): string  {
+  private removeExportClass(line: string): string {
     if (line.indexOf('export') !== -1 &&
       line.indexOf(' from ') === -1 &&
       (line.indexOf('class') !== -1
@@ -117,8 +111,8 @@ export default class SimpleDtsBundlePlugin {
 
   private checkImport(line: string): boolean {
     // とりあえず完全に同一行だけはじく
-    if(line.indexOf('import') !== -1) {
-      if(!this.importStatekeys[line]) {
+    if (line.indexOf('import') !== -1) {
+      if (!this.importStatekeys[line]) {
         this.importStatekeys[line] = true;
         this.importStats.push(line);
       }
@@ -126,3 +120,4 @@ export default class SimpleDtsBundlePlugin {
     return line.indexOf('import') !== -1;
   }
 }
+export = SimpleDtsBundlePlugin;

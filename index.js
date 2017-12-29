@@ -1,5 +1,4 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 var SimpleDtsBundlePlugin = /** @class */ (function () {
     function SimpleDtsBundlePlugin(options) {
         this.importStats = [];
@@ -99,4 +98,4 @@ var SimpleDtsBundlePlugin = /** @class */ (function () {
     };
     return SimpleDtsBundlePlugin;
 }());
-exports.default = SimpleDtsBundlePlugin;
+module.exports = SimpleDtsBundlePlugin;

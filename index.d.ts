@@ -1,12 +1,7 @@
 /// <reference types="webpack" />
 import { Compiler } from "webpack";
-export interface IPluginOption {
-    wrapModule: boolean;
-    name: string;
-    out: string;
-    exRefrences?: string[] | undefined;
-}
-export default class SimpleDtsBundlePlugin {
+import { IPluginOption } from "./interfaces";
+declare class SimpleDtsBundlePlugin {
     wrapModule: boolean;
     out: string;
     moduleName: string;
@@ -25,3 +20,4 @@ export default class SimpleDtsBundlePlugin {
     private checkExport(line);
     private checkImport(line);
 }
+export = SimpleDtsBundlePlugin;
