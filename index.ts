@@ -3,13 +3,13 @@ import {Compiler} from "webpack";
 export interface IPluginOption {
   wrapModule: boolean;
   name: string;
-  outDir: string;
+  out: string;
   exRefrences?: string[] | undefined;
 }
 
 export default class SimpleDtsBundlePlugin {
   wrapModule: boolean;
-  outDir: string;
+  out: string;
   moduleName: string;
   exRefrences: string[] | undefined;
   importStats: string[] = [];
@@ -18,7 +18,7 @@ export default class SimpleDtsBundlePlugin {
   constructor(options: IPluginOption ) {
     this.moduleName = options.name;
     this.wrapModule = options.wrapModule ? options.wrapModule : true;
-    this.outDir = options.outDir ? options.outDir : './dist/';
+    this.out = options.out ? options.out : './dist/index.d.ts';
     this.exRefrences = options.exRefrences ? options.exRefrences : undefined;
   }
 
@@ -34,7 +34,7 @@ export default class SimpleDtsBundlePlugin {
 
       const combinedDeclaration = this.make(declarationFiles);
 
-      compilation.assets[this.outDir] = {
+      compilation.assets[this.out] = {
         source: function () {
           return combinedDeclaration;
         },
@@ -55,8 +55,10 @@ export default class SimpleDtsBundlePlugin {
       const lines = data.split("\n");
       let i = lines.length;
 
-      while (i--) {
-        lines[i] = this.makeLines(lines[i]);
+      if(this.wrapModule) {
+        while (i--) {
+          lines[i] = this.makeLines(lines[i]);
+        }
       }
       declarations += lines.join("\n") + "\n\n";
     }

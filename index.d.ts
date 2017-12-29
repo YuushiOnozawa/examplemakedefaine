@@ -3,12 +3,12 @@ import { Compiler } from "webpack";
 export interface IPluginOption {
     wrapModule: boolean;
     name: string;
-    outDir: string;
+    out: string;
     exRefrences?: string[] | undefined;
 }
 export default class SimpleDtsBundlePlugin {
     wrapModule: boolean;
-    outDir: string;
+    out: string;
     moduleName: string;
     exRefrences: string[] | undefined;
     importStats: string[];

@@ -6,7 +6,7 @@ var SimpleDtsBundlePlugin = /** @class */ (function () {
         this.importStatekeys = {};
         this.moduleName = options.name;
         this.wrapModule = options.wrapModule ? options.wrapModule : true;
-        this.outDir = options.outDir ? options.outDir : './dist/';
+        this.out = options.out ? options.out : './dist/index.d.ts';
         this.exRefrences = options.exRefrences ? options.exRefrences : undefined;
     }
     SimpleDtsBundlePlugin.prototype.apply = function (compiler) {
@@ -20,7 +20,7 @@ var SimpleDtsBundlePlugin = /** @class */ (function () {
                 }
             }
             var combinedDeclaration = _this.make(declarationFiles);
-            compilation.assets[_this.outDir] = {
+            compilation.assets[_this.out] = {
                 source: function () {
                     return combinedDeclaration;
                 },
@@ -38,8 +38,10 @@ var SimpleDtsBundlePlugin = /** @class */ (function () {
             var data = declarationFile._value || declarationFile.source();
             var lines = data.split("\n");
             var i = lines.length;
-            while (i--) {
-                lines[i] = this.makeLines(lines[i]);
+            if (this.wrapModule) {
+                while (i--) {
+                    lines[i] = this.makeLines(lines[i]);
+                }
             }
             declarations += lines.join("\n") + "\n\n";
         }
